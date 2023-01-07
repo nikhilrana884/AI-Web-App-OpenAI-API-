@@ -29,3 +29,27 @@ function typeText(element, text) {
         }
     }, 30)
 }
+
+function generateUniqueId() {
+    const timestamp = Date.now();
+    const randomNumber = Math.random();
+    const hexadecimalString = randomNumber.toString(16);
+
+    return `id-${timestamp}-${hexadecimalString}`;
+}
+
+}
+
+const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const data = new FormData(form)
+
+}
+
+form.addEventListener('submit', handleSubmit)
+form.addEventListener('keyup', (e) => {
+    if (e.keyCode === 13) {
+        handleSubmit(e)
+    }
+})

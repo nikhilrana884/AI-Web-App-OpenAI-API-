@@ -20,3 +20,20 @@ app.get('/', async (req, res) => {
     message: 'Hi'
   })
 })
+
+app.post('/', async (req, res) => {
+    try {
+      const prompt = req.body.prompt;
+  
+  
+      res.status(200).send({
+        bot: response.data.choices[0].text
+      });
+  
+    } catch (error) {
+      console.error(error)
+      res.status(500).send(error || 'Error');
+    }
+  })
+  
+  app.listen(5000, () => console.log('Server started on http://localhost:5000'))
