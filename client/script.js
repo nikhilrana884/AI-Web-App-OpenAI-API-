@@ -1,7 +1,7 @@
 import bot from './assets/bot.svg';
 
 const form = document.querySelector('form')
-const chatContainer = document.querySelector('#query')
+const userquery = document.querySelector('#query')
 
 let loadInterval
 
@@ -38,12 +38,68 @@ function generateUniqueId() {
     return `id-${timestamp}-${hexadecimalString}`;
 }
 
+function aiChat( isAi, value, uniqueID) {
+    return(
+    `
+        <div class="wrapper ${isAi && 'ai'}">
+            <div class="chat">
+                <div class="profile">
+                    <img 
+                      src=${isAi ? bot : user} 
+                      alt="${isAi ? 'bot' : 'user'}" 
+                    />
+                </div>
+                <div class="message" id=${uniqueID}>${value}</div>
+            </div>
+        </div>
+    `
+    )
 }
+
+
 
 const handleSubmit = async (e) => {
     e.preventDefault()
 
     const data = new FormData(form)
+
+    userquery.innerHTML += aiChat(false, data.get('prompt'))
+
+    form.reset()
+
+    const uniqueId = generateUniqueId()
+    userquery.innerHTML += aiChat(true, " ", uniqueId)
+
+    userquery.scrollTop = userquery.scrollHeight;
+
+    const messageDiv = document.getElementById(uniqueId)
+
+    loader(messageDiv)
+
+    const response = await fetch('https://codex-im0y.onrender.com/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            prompt: data.get('prompt')
+        })
+    })
+
+    clearInterval(loadInterval)
+    messageDiv.innerHTML = " "
+
+    if (response.ok) {
+        const data = await response.json();
+        const parsedData = data.bot.trim() // trims any trailing spaces/'\n' 
+
+        typeText(messageDiv, parsedData)
+    } else {
+        const err = await response.text()
+
+        messageDiv.innerHTML = "Something went wrong"
+        alert(err)
+    }
 
 }
 
