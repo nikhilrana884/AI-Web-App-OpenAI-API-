@@ -1,7 +1,7 @@
 import bot from './assets/bot.svg';
 
 const form = document.querySelector('form')
-const userquery = document.querySelector('#query')
+const userQuery = document.querySelector('#userquery')
 
 let loadInterval
 
@@ -11,10 +11,10 @@ function loader(element) {
     loadInterval = setInterval(() => {
         element.textContent += '.';
 
-        if (element.textContent === '.......') {
+        if (element.textContent === '....') {
             element.textContent = '';
         }
-    }, 500);
+    }, 400);
 }
 
 function typeText(element, text) {
@@ -27,7 +27,7 @@ function typeText(element, text) {
         } else {
             clearInterval(interval)
         }
-    }, 30)
+    }, 20)
 }
 
 function generateUniqueId() {
@@ -38,7 +38,7 @@ function generateUniqueId() {
     return `id-${timestamp}-${hexadecimalString}`;
 }
 
-function aiChat( isAi, value, uniqueID) {
+function aiChat( isAi, value, uniqueId) {
     return(
     `
         <div class="wrapper ${isAi && 'ai'}">
@@ -49,7 +49,7 @@ function aiChat( isAi, value, uniqueID) {
                       alt="${isAi ? 'bot' : 'user'}" 
                     />
                 </div>
-                <div class="message" id=${uniqueID}>${value}</div>
+                <div class="message" id=${uniqueId}>${value}</div>
             </div>
         </div>
     `
@@ -63,20 +63,20 @@ const handleSubmit = async (e) => {
 
     const data = new FormData(form)
 
-    userquery.innerHTML += aiChat(false, data.get('prompt'))
+    userQuery.innerHTML += aiChat(false, data.get('prompt'))
 
     form.reset()
 
     const uniqueId = generateUniqueId()
-    userquery.innerHTML += aiChat(true, " ", uniqueId)
+    userQuery.innerHTML += aiChat(true, " ", uniqueId)
 
-    userquery.scrollTop = userquery.scrollHeight;
+    userQuery.scrollTop = userQuery.scrollHeight;
 
     const messageDiv = document.getElementById(uniqueId)
 
     loader(messageDiv)
 
-    const response = await fetch('https://codex-im0y.onrender.com/', {
+    const response = await fetch('http://localhost:5000', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const handleSubmit = async (e) => {
 
     if (response.ok) {
         const data = await response.json();
-        const parsedData = data.bot.trim() // trims any trailing spaces/'\n' 
+        const parsedData = data.bot.trim()
 
         typeText(messageDiv, parsedData)
     } else {
@@ -105,7 +105,6 @@ const handleSubmit = async (e) => {
 
 form.addEventListener('submit', handleSubmit)
 form.addEventListener('keyup', (e) => {
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13)
         handleSubmit(e)
-    }
 })
